@@ -1,0 +1,17 @@
+[Container]
+ContainerName=roadmapper-ash
+LoadCredential=.env:/etc/roadmapper.env
+EnvironmentFile=%d/.env
+ExposeHostPort=4000
+Image=ghcr.io/intcube-io/roadmapp3r-ash:prod
+PublishPort=127.0.0.1:4000:4000
+Pull=newer
+LoadCredential=auth.json:/etc/containers/auth.json
+PodmanArgs=--authfile %d/auth.json
+AutoUpdate=registry
+Pull=newer
+[Install]
+WantedBy=default.target
+
+[Service]
+Restart=always

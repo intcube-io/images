@@ -1,0 +1,9 @@
+FROM quay.io/fedora/fedora-bootc:42
+# automatically populated with --arch
+ARG TARGETARCH
+LABEL arch=$TARGETARCH
+
+RUN systemctl enable sshd.service
+
+COPY roadmapper-ash.container /usr/share/containers/systemd/roadmapper-ash.container
+RUN systemctl enable roadmapper-ash.container
