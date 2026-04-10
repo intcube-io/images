@@ -14,6 +14,10 @@ jobs:
       packages: write
       attestations: write
       id-token: write
+    strategy:
+      max-parallel: 1
+      matrix:
+        image: [ stalwart, gophish ]
     steps:
       # Step 1: Checkout the code
       - name: Checkout Repository
@@ -24,14 +28,14 @@ jobs:
         id: build-image
         uses: redhat-actions/buildah-build@v2
         with:
-          image: stalwart
+          image: ${{ matrix.image }}
           tags: latest ${{ github.sha }}
           build-args: |
             COMMIT=${{ github.sha }}
           containerfiles: |
-            ./OCI/stalwart/Containerfile
+            ./OCI/${{ matrix.image }}/Containerfile
           context: |
-            ./OCI/stalwart
+            ./OCI/${{ matrix.image }}
 
       # Step 3: Push the image to GHCR
       - name: Push Image to GHCR
