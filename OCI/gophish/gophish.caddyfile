@@ -1,0 +1,4 @@
+# Admin panel
+gophish.intcube.dev:8443 {
+    reverse_proxy :3333
+}

@@ -1,0 +1,31 @@
+# Non-standard images are only available from fedora-testing
+FROM ghcr.io/intcube-io/stalwart:latest
+# automatically populated with --arch
+ARG TARGETARCH
+LABEL arch=$TARGETARCH
+
+# Gophish -> Stalwart
+RUN mkdir /usr/share/gophish
+WORKDIR /usr/share/gophish
+RUN curl -o gophish.zip -L https://github.com/gophish/gophish/releases/download/v0.12.1/gophish-v0.12.1-linux-64bit.zip && \
+    printf '%s  gophish.zip\n' "44f598c1eeb72c3b08fa73d57049022d96cea2872283b87a73d21af78a2c6d47" | sha256sum -c
+RUN dnf install -y unzip
+RUN unzip gophish.zip
+# Use SQLite DB File from StateDirectory,
+# Disable creation of self-signed certs (we use Caddy),
+# Allow-list our proxy for the admin interface,
+# Listen on Localhost only
+RUN mv config.json config.tmpl.json
+RUN jq '.db_path="/var/lib/gophish/gophish.db" | \
+    .admin_server.use_tls=false | \
+    .admin_server.trusted_origins=["gophish.intcube.dev:8443"] | \
+    .phish_server.listen_url="127.0.0.1:8000" ' config.tmpl.json > config.json
+# Allow adding custom files for landing pages in /var
+RUN ln -sf /var/lib/private/gophish/static/endpoint static/endpoint
+RUN mv gophish /usr/bin/gophish && chmod +x /usr/bin/gophish
+COPY gophish.service /usr/lib/systemd/system/gophish.service
+COPY gophish.caddyfile /usr/lib/systemd/system/Caddyfile.d/gophish.caddyfile
+RUN systemctl enable gophish.service
+
+# systemd state dir: /var/lib/private/stalwart
+# immutable stuff: /usr/share/

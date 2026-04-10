@@ -1,0 +1,65 @@
+[Unit]
+Description=Gophish (Open-Source phishing framework)
+After=network.target
+
+
+[Service]
+Type=simple
+WorkingDirectory=/usr/share/gophish
+ExecStart=/usr/bin/gophish
+SuccessExitStatus=2
+# FIXME: Consider pre-setting the initial password.
+# Unfortunately gophish only allows passing through env (insecure)
+# This isn't too bad, since it's only the initial password, but for now it's necessary
+# to get the admin pw from the logs
+# Hardening
+DynamicUser=yes
+NoNewPrivileges=yes
+
+# Provides privately owned /var/lib/gophish
+StateDirectory=gophish
+# /var/log/gophish & /var/cache/gophish
+#LogDirectory=gophish
+#CacheDirectory=gophish
+# FIXME: Consider chroot() jail. Possible conflict with StateDirectory etc.
+#RootDirectory=
+
+PrivateDevices=yes
+# FIXME: char-rtc:r is automatically allowed
+#DeviceAllow=
+DevicePolicy=closed
+MemoryDenyWriteExecute=yes
+LockPersonality=yes
+PrivateUsers=yes
+MemoryDenyWriteExecute=yes
+UMask=0277
+SystemCallArchitectures=native
+ProcSubset=pid
+
+CapabilityBoundingSet=~CAP_LINUX_IMMUTABLE CAP_IPC_LOCK CAP_SYS_CHROOT CAP_BLOCK_SUSPEND CAP_LEASE
+CapabilityBoundingSet=~CAP_SYS_ADMIN CAP_SYS_BOOT CAP_SYS_PACCT CAP_SYS_PTRACE CAP_SYS_RAWIO CAP_SYS_TIME CAP_SYS_TTY_CONFIG
+CapabilityBoundingSet=~CAP_WAKE_ALARM  CAP_MAC_ADMIN CAP_MAC_OVERRIDE
+CapabilityBoundingSet=~CAP_SETUID CAP_SETGID CAP_SETPCAP CAP_CHOWN CAP_NET_ADMIN
+CapabilityBoundingSet=~CAP_CHOWN CAP_FSETID CAP_SETFCAP
+CapabilityBoundingSet=~CAP_DAC_OVERRIDE CAP_DAC_READ_SEARCH CAP_FOWNER CAP_IPC_OWNER
+CapabilityBoundingSet=~CAP_BPF CAP_KILL CAP_SYS_NICE CAP_SYS_RESOURCE
+CapabilityBoundingSet=~CAP_AUDIT CAP_AUDIT_CONTROL CAP_AUDIT_READ CAP_AUDIT_WRITE
+CapabilityBoundingSet=~CAP_NET_BIND_SERVICE CAP_NET_BROADCAST CAP_NET_RAW
+
+ProtectControlGroups=yes
+ProtectKernelModules=yes
+ProtectKernelTunables=yes
+ProtectClock=yes
+ProtectHostname=yes
+ProtectHome=yes
+ProtectKernelLogs=true
+ProtectProc=invisible
+
+# FIXME: Consider removing AF_UNIX
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6 ~AF_NETLINK
+RestrictNamespaces=yes
+RestrictRealtime=yes
+RestrictSUIDSGID=yes
+
+[Install]
+WantedBy=default.target
