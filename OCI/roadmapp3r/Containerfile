@@ -5,5 +5,22 @@ LABEL arch=$TARGETARCH
 
 RUN systemctl enable sshd.service
 
+# Reverse Proxy
+RUN dnf install -y 'dnf5-command(copr)'
+RUN dnf copr enable @caddy/caddy
+RUN dnf install -y caddy
+
+# Enable updating system Caddyfile/Caddyfile.d through Container Image updates
+# XXX https://bootc-dev.github.io/bootc//building/guidance.html#handling-read-only-vs-writable-locations
+RUN mv /etc/caddy/Caddyfile /usr/lib/systemd/system/Caddyfile
+RUN mv /etc/caddy/Caddyfile.d /usr/lib/systemd/system/Caddyfile.d
+RUN echo 'import /usr/lib/systemd/system/Caddyfile' > /etc/caddy/Caddyfile
+COPY Caddyfile /usr/lib/systemd/system/Caddyfile
+
+RUN systemctl enable caddy.service
+
 COPY roadmapper-ash.container /usr/share/containers/systemd/roadmapper-ash.container
+
+COPY loadbalancer.caddyfile /usr/lib/systemd/system/Caddyfile.d/loadbalancer.caddyfile
+
 #RUN systemctl enable roadmapper-ash.container

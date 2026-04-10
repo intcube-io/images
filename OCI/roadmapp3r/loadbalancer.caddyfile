@@ -1,0 +1,20 @@
+{
+    servers {
+        trusted_proxies static 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16
+    }
+}
+
+roadmapper-staging.intcube.dev {
+    reverse_proxy localhost:4000 {
+        header_up X-Real-IP {http.request.remote.host}
+        @blocked not remote_ip 77.245.43.68
+        abort @blocked
+        respond @blocked "Access Denied" 403
+    }
+}
+
+roadmapper.int3.app int3.app {
+    reverse_proxy localhost:4000 {
+        header_up X-Real-IP {http.request.remote.host}
+    }
+}

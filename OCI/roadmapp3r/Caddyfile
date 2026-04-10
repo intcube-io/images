@@ -1,0 +1,6 @@
+{
+    # Let's Encrypt doesn't support this anymore
+    ocsp_stapling off
+}
+
+import Caddyfile.d/*.caddyfile
