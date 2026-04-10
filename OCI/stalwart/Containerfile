@@ -19,8 +19,8 @@ RUN echo 'import /usr/lib/systemd/system/Caddyfile' > /etc/caddy/Caddyfile
 
 # MTA
 WORKDIR /tmp
-RUN curl -o stalwart.tar.gz -L https://github.com/stalwartlabs/stalwart/releases/download/v0.12.5/stalwart-x86_64-unknown-linux-gnu.tar.gz && \
-    printf '%s  stalwart.tar.gz\n' "2dcd8e753b7f1ed14c495dfdfaffa6c7c78812e6310e4f25211c11f83bcb5a85" | sha256sum -c
+RUN curl -o stalwart.tar.gz -L https://github.com/stalwartlabs/stalwart/releases/download/v0.14.1/stalwart-x86_64-unknown-linux-gnu.tar.gz && \
+    printf '%s  stalwart.tar.gz\n' "873ba2a29eef92e1c90d150cf0869e7b8f8f75bcb469e049ff08ef5de0dabb17" | sha256sum -c
 RUN tar xvf stalwart.tar.gz
 RUN mv stalwart /usr/bin/stalwart && chmod +x /usr/bin/stalwart
 RUN mkdir /etc/stalwart
