@@ -3,7 +3,4 @@
     ocsp_stapling off
 }
 
-# Mail
-mail.intcube.dev {
-    reverse_proxy :8080
-}
+import Caddyfile.d/*.caddyfile

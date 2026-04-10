@@ -1,0 +1,4 @@
+# Mail
+mail.intcube.dev {
+    reverse_proxy :8080
+}
