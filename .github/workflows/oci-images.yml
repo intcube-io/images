@@ -3,6 +3,9 @@ on:
   push:
     branches:
       - main
+    paths:
+      - ".github/workflows/oci-images.yml"
+      - "OCI/**"
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
@@ -11,11 +14,11 @@ jobs:
       packages: write
       attestations: write
       id-token: write
-    steps:  
-      # Step 1: Checkout the code  
-      - name: Checkout Repository  
+    steps:
+      # Step 1: Checkout the code
+      - name: Checkout Repository
         uses: actions/checkout@v4
-      
+
       # Step 2: Build the container image(s)
       - name: Build Container Image
         id: build-image
@@ -26,11 +29,11 @@ jobs:
           build-args: |
             COMMIT=${{ github.sha }}
           containerfiles: |
-            ./stalwart/Containerfile
+            ./OCI/stalwart/Containerfile
           context: |
-            ./stalwart
+            ./OCI/stalwart
 
-      # Step 3: Push the image to GHCR  
+      # Step 3: Push the image to GHCR
       - name: Push Image to GHCR
         id: push
         uses: redhat-actions/push-to-registry@v2
@@ -40,4 +43,3 @@ jobs:
           registry: ghcr.io/${{ github.repository_owner }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-
