@@ -1,0 +1,31 @@
+FROM quay.io/fedora-testing/fedora-bootc:42-standard
+# automatically populated with --arch
+ARG TARGETARCH
+LABEL arch=$TARGETARCH
+
+RUN systemctl enable sshd.service
+
+# Reverse Proxy
+RUN dnf install -y 'dnf5-command(copr)'
+RUN dnf copr enable @caddy/caddy
+RUN dnf install -y caddy
+RUN systemctl enable caddy.service
+
+# Enable updating Caddyfile through Container Image updates
+RUN mv /etc/caddy/Caddyfile /usr/lib/systemd/system/Caddyfile
+RUN mv /etc/caddy/Caddyfile.d /usr/lib/systemd/system/Caddyfile.d
+RUN echo 'import /usr/lib/systemd/system/Caddyfile' > /etc/caddy/Caddyfile
+
+# MTA
+WORKDIR /tmp
+RUN curl -o stalwart.tar.gz -L https://github.com/stalwartlabs/stalwart/releases/download/v0.12.5/stalwart-x86_64-unknown-linux-gnu.tar.gz && \
+    printf '%s  stalwart.tar.gz\n' "2dcd8e753b7f1ed14c495dfdfaffa6c7c78812e6310e4f25211c11f83bcb5a85" | sha256sum -c
+RUN tar xvf stalwart.tar.gz
+RUN mv stalwart /usr/bin/stalwart && chmod +x /usr/bin/stalwart
+RUN mkdir /etc/stalwart
+COPY stalwart.toml /etc/stalwart/config.toml
+COPY stalwart.service /usr/lib/systemd/system/stalwart.service
+RUN systemctl enable stalwart.service
+
+# configure Caddy as remote proxy for our service
+COPY Caddyfile /usr/lib/systemd/system/Caddyfile

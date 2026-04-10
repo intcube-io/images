@@ -1,0 +1,52 @@
+[server]
+hostname = "mail.intcube.dev"
+
+[server.listener."smtp"]
+bind = ["[::]:25"]
+protocol = "smtp"
+
+# TODO: R/n the SMTP/S and IMAP/S certs are self-signed
+# because the HTTP/S server is behind Caddy and can't handle ACME
+# challenges
+[server.listener."submissions"]
+bind = ["[::]:465"]
+protocol = "smtp"
+tls.implicit = true
+
+[server.listener."imaptls"]
+bind = ["[::]:993"]
+protocol = "imap"
+tls.implicit = true
+
+[server.listener."http"]
+bind = ["[::]:8080"]
+protocol = "http"
+
+#[server.listener."https"]
+#server.listener.https.bind = "[::]:443"
+
+[storage]
+data = "rocksdb"
+fts = "rocksdb"
+blob = "rocksdb"
+lookup = "rocksdb"
+directory = "internal"
+
+[store."rocksdb"]
+type = "rocksdb"
+path = "%{env:STATE_DIRECTORY}%/data"
+compression = "lz4"
+
+[directory."internal"]
+type = "internal"
+store = "rocksdb"
+
+[tracer."stdout"]
+type = "stdout"
+level = "info"
+ansi = false
+enable = true
+
+[authentication.fallback-admin]
+user = "admin"
+secret = "%{file:%{env:CREDENTIALS_DIRECTORY}%/adminpw}%"

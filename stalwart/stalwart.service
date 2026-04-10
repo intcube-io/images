@@ -1,0 +1,27 @@
+[Unit]
+Description=Stalwart
+Conflicts=postfix.service sendmail.service exim4.service
+ConditionPathExists=/etc/stalwart/config.toml
+After=network-online.target
+
+[Service]
+Type=simple
+LimitNOFILE=65536
+KillMode=process
+KillSignal=SIGINT
+Restart=on-failure
+RestartSec=5
+ExecStart=/usr/bin/stalwart --config=/etc/stalwart/config.toml
+# Needs to be supplied at install time
+# ATTENTION: Must not contain a trailing newline!
+LoadCredential=adminpw:/etc/stalwartadminpw.txt
+SyslogIdentifier=stalwart
+# Hardening
+# XXX: Do some more work here
+DynamicUser=yes
+StateDirectory=stalwart
+ConfigurationDirectory=stalwart
+AmbientCapabilities=CAP_NET_BIND_SERVICE
+
+[Install]
+WantedBy=multi-user.target
