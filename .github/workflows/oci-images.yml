@@ -6,6 +6,8 @@ on:
     paths:
       - ".github/workflows/oci-images.yml"
       - "OCI/**"
+  schedule:
+    - cron: "0 10 * * 2"
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
